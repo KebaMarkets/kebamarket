@@ -1,0 +1,63 @@
+services:
+  auth-app:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    container_name: auth-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./services/auth:/var/www/html
+    environment:
+      APP_ENV: dev
+    depends_on:
+      - auth-postgres
+      - auth-redis
+    networks:
+      - kebamarket
+
+  auth-nginx:
+    image: nginx:1.27
+    container_name: auth-nginx
+    restart: unless-stopped
+    ports:
+      - "8001:80"
+    volumes:
+      - ./services/auth:/var/www/html
+      - ./services/auth/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - auth-app
+    networks:
+      - kebamarket
+
+  auth-postgres:
+    image: postgres:16
+    container_name: auth-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5435:5432"
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+    networks:
+      - kebamarket
+
+  auth-redis:
+    image: redis:7
+    container_name: auth-redis
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    networks:
+      - kebamarket
+
+networks:
+  kebamarket:
+    driver: bridge
+
+volumes:
+  auth_pgdata:
+
