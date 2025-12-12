@@ -1,22 +1,30 @@
 FROM php:8.4-fpm
 
-# Install system dependencies
+# Install system deps
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpq-dev libicu-dev libzip-dev \
-    && docker-php-ext-install pdo pdo_pgsql intl zip
+    git curl zip unzip \
+    libpq-dev libicu-dev libzip-dev \
+    && docker-php-ext-install pdo_pgsql intl zip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy project files
+# Copy composer files first
+COPY composer.json composer.lock* ./
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_MEMORY_LIMIT=-1
+
+RUN composer install --no-scripts --no-interaction --prefer-dist
+
+# Copy project source
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer dump-autoload --optimize
 
-# Symfony permissions fix
-RUN chown -R www-data:www-data /var/www/html/var
+RUN chown -R www-data:www-data /var/www/html/vendor /var/www/html/var
 
+CMD ["php-fpm"]

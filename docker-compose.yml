@@ -10,6 +10,8 @@ services:
       - ./services/auth:/var/www/html
     environment:
       APP_ENV: dev
+      REDIS_HOST: auth-redis
+      REDIS_PORT: 6379
     depends_on:
       - auth-postgres
       - auth-redis
@@ -39,7 +41,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5435:5432"
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_PORT}"
     volumes:
       - auth_pgdata:/var/lib/postgresql/data
     networks:
