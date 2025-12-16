@@ -13,7 +13,7 @@ services:
       REDIS_HOST: auth-redis
       REDIS_PORT: 6379
     depends_on:
-      - auth-postgres
+#      - auth-postgres
       - auth-redis
     networks:
       - kebamarket
