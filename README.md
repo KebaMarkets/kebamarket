@@ -1,2 +1,2 @@
 # kebamarket
-test project for practice
+some read me info
