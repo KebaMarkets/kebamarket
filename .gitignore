@@ -19,3 +19,9 @@
 /fuel/app/logs/*/*/*
 /fuel/app/cache/*/*
 /fuel/app/config/crypt.php
+
+# idea files
+.idea/
+
+#env file
+.env
