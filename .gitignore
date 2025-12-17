@@ -22,3 +22,6 @@
 
 # idea files
 .idea/
+
+#env file
+.env

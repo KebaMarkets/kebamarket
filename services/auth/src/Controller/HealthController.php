@@ -15,26 +15,31 @@ final class HealthController extends AbstractController
         Connection $connection,
         Redis $redis
     ): JsonResponse {
-        $result = [
+        return new JsonResponse([
             'app'   => 'ok',
-            'db'    => 'ok',
-            'redis' => 'ok',
-        ];
+            'db'    => $this->checkDatabase($connection),
+            'redis' => $this->checkRedis($redis),
+        ]);
+    }
 
-        // DB check
+    private function checkDatabase(Connection $connection): string
+    {
         try {
             $connection->executeQuery('SELECT 1')->fetchOne();
+            return 'ok';
         } catch (\Throwable) {
-            $result['db'] = 'error';
+            return 'error';
         }
+    }
 
-        // Redis check
+    private function checkRedis(Redis $redis): string
+    {
         try {
             $redis->ping();
+            return 'ok';
         } catch (\Throwable) {
-            $result['redis'] = 'error';
+            return 'error';
         }
-
-        return new JsonResponse($result, 200);
     }
 }
+
